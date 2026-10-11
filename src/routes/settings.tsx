@@ -39,6 +39,21 @@ function FieldError({ id, message }: { id: string; message: string | undefined }
   );
 }
 
+// setErrors の反映前に呼ぶため、DOM の aria-invalid ではなく検証結果から画面の上にある欄を選ぶ
+function firstInvalidFieldId(errors: SettingsErrors): string | null {
+  if (errors.bedtime !== undefined) {
+    return 'bedtime';
+  }
+  if (errors.lower !== undefined || errors.thresholds !== undefined) {
+    return 'lower';
+  }
+  if (errors.upper !== undefined) {
+    return 'upper';
+  }
+  const drink = DRINKS.find((d) => errors.caffeineMg[d.id] !== undefined);
+  return drink === undefined ? null : `caffeine-${drink.id}`;
+}
+
 function describedBy(...ids: (string | false)[]): string | undefined {
   const joined = ids.filter((id) => id !== false).join(' ');
   return joined === '' ? undefined : joined;
@@ -52,7 +67,7 @@ type SectionProps = {
 
 function Section({ title, onReset, children }: SectionProps) {
   return (
-    <fieldset className='border-border flex flex-col gap-4 rounded-xl border p-4'>
+    <fieldset className='border-border flex min-w-0 flex-col gap-4 rounded-xl border p-4'>
       <div className='flex items-center justify-between gap-2'>
         <legend className='float-left min-w-0 text-base font-bold break-keep'>{title}</legend>
         <Button
@@ -85,8 +100,10 @@ function SettingsPage() {
     const result = validateSettings(form);
     if (!result.ok) {
       setErrors(result.errors);
-      const firstInvalid = event.currentTarget.querySelector<HTMLElement>('[aria-invalid="true"]');
-      firstInvalid?.focus();
+      const firstId = firstInvalidFieldId(result.errors);
+      if (firstId !== null) {
+        document.getElementById(firstId)?.focus();
+      }
       return;
     }
     setErrors(NO_ERRORS);

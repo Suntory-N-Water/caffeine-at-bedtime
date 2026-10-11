@@ -48,8 +48,10 @@ function MainPage() {
     key: `${layer.drinkId}-${evaluation.todayRecords.filter((r) => r.drinkId === layer.drinkId).length}`,
   }));
 
+  // 下に出るトースト（高さ約 90px）が取り消しボタンに重なると続けて取り消せないため、
+  // 一番下までスクロールしたときにボタンがトーストより上に来るだけの余白を下に取る
   return (
-    <div className='mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]'>
+    <div className='mx-auto flex min-h-dvh w-full max-w-lg flex-col px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(7rem+env(safe-area-inset-bottom))]'>
       <header className='flex flex-col gap-2'>
         <h1 className='sr-only'>寝る前のカフェイン</h1>
         <div className='flex items-center gap-3'>
