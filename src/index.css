@@ -80,6 +80,7 @@
   --verdict-out-text: color-mix(in oklch, var(--benihi) 78%, var(--sumi));
   --verdict-on: #ffffff;
   --gauge-base: color-mix(in oklch, var(--sumi) 32%, var(--hakuji));
+  --vessel: #ffffff;
 
   --drink-home-coffee: #583822;
   --drink-seven-cafe-hot: #6f4b3e;
@@ -118,6 +119,7 @@
   --verdict-out-text: var(--verdict-out);
   --verdict-on: var(--koiai);
   --gauge-base: color-mix(in oklch, var(--hakuji) 42%, var(--koiai));
+  --vessel: color-mix(in oklch, var(--hakuji) 85%, var(--koiai));
 
   /* コーヒーの 3 色は暗く、濃藍の背景では横棒が見えないため、白磁を混ぜて明るくする */
   --drink-home-coffee: color-mix(in oklch, #583822 70%, var(--hakuji));
@@ -147,19 +149,75 @@
   }
 }
 
+.night-window {
+  background:
+    radial-gradient(120% 90% at 85% 110%, rgb(255 255 255 / 0.1), transparent 60%),
+    linear-gradient(170deg, #1d3a74 0%, var(--koiai) 55%, #0a1838 100%);
+}
+
 @keyframes pour {
   from {
-    transform: scaleX(0);
+    transform: scaleY(0);
   }
 }
 
-.gauge-segment-enter {
-  transform-origin: left;
-  animation: pour 450ms cubic-bezier(0.22, 1, 0.36, 1);
+.glass-layer-enter {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: pour 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes wave {
+  to {
+    transform: translateX(50px);
+  }
+}
+
+.glass-wave {
+  animation: wave 3.2s linear infinite;
+}
+
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.vessel-steam {
+  animation: steam 2.6s ease-out infinite;
+}
+
+.vessel-steam-late {
+  animation-delay: 1.3s;
+}
+
+@keyframes twinkle {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.night-star {
+  animation: twinkle 3.5s ease-in-out infinite;
+}
+
+.night-star:nth-child(2n) {
+  animation-delay: 1.7s;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gauge-segment-enter {
+  .glass-layer-enter,
+  .glass-wave,
+  .vessel-steam,
+  .night-star {
     animation: none;
   }
 }

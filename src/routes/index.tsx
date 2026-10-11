@@ -6,14 +6,14 @@ import { toast } from 'sonner';
 import { useAppState } from '@/app-state';
 import { DrinkSwatch, drinkColor } from '@/components/cup';
 import { DrinkButton } from '@/components/drink-button';
-import { Gauge, gaugeScaleMax } from '@/components/gauge';
+import { NightGlass } from '@/components/night-glass';
 import { Button } from '@/components/ui/button';
 import { VerdictBadge, VerdictLabel } from '@/components/verdict-label';
 import { bedtimeOf, dayOf } from '@/domain/day';
 import { findDrink } from '@/domain/drinks';
-import { evaluate } from '@/domain/evaluate';
+import { type Assessment, type DrinkAssessment, evaluate } from '@/domain/evaluate';
 import { formatBedtime } from '@/domain/settings';
-import type { DrinkId } from '@/domain/types';
+import type { DrinkId, Thresholds } from '@/domain/types';
 import { formatTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -23,6 +23,19 @@ export const Route = createFileRoute('/')({
 });
 
 const TOAST_DURATION_MS = 5000;
+const COFFEE_IDS: ReadonlySet<DrinkId> = new Set([
+  'home-coffee',
+  'seven-cafe-hot',
+  'seven-cafe-iced',
+]);
+
+function marginMessage({ residualMg, verdict }: Assessment, thresholds: Thresholds): string {
+  const margin = thresholds.upper - residualMg;
+  if (verdict === 'out') {
+    return `アウトの線を ${-margin}mg 越えています`;
+  }
+  return `アウトの線まで あと ${margin}mg`;
+}
 
 function MainPage() {
   const { now, records, settings, record, remove, undo, restore } = useAppState();
@@ -48,7 +61,7 @@ function MainPage() {
     });
   };
 
-  // 画面を開いた時点の層まで伸びる動きを再生すると、記録の操作と関係なく毎回動いてしまうため、
+  // 画面を開いた時点の層まで注ぐ動きを再生すると、記録の操作と関係なく毎回動いてしまうため、
   // 初回の描画にあった層は動かさない
   const layerKeys = evaluation.layers.map(
     (layer) =>
@@ -58,7 +71,7 @@ function MainPage() {
   if (initialLayerKeys.current === null) {
     initialLayerKeys.current = new Set(layerKeys);
   }
-  const tonightSegments = evaluation.layers.map((layer, index) => {
+  const glassLayers = evaluation.layers.map((layer, index) => {
     const key = layerKeys[index] ?? layer.drinkId;
     return {
       key,
@@ -67,61 +80,63 @@ function MainPage() {
       enter: initialLayerKeys.current?.has(key) !== true,
     };
   });
+  const glassLabel = `今日飲んだ分のグラス。${
+    evaluation.layers.length === 0
+      ? 'まだ空です'
+      : evaluation.layers
+          .map((l) => `${findDrink(l.drinkId).name} ${Math.round(l.residualMg)}mg`)
+          .join('、')
+  }。線は ${thresholds.lower}mg と ${thresholds.upper}mg`;
 
-  const scaleMax = gaugeScaleMax(
-    thresholds,
-    evaluation.drinks.map((d) => d.residualMg),
-  );
   const isPastBedtime = now >= bedtimeOf(dayOf(now), settings.bedtimeMinutes);
-  const tonightLabel = isPastBedtime
-    ? '今すぐ寝ると体に残るカフェイン'
-    : `今夜 ${formatBedtime(settings.bedtimeMinutes)} に体に残るカフェイン`;
-  const layerDescription = evaluation.layers
-    .map((l) => `${findDrink(l.drinkId).name} ${Math.round(l.residualMg)}mg`)
-    .join('、');
+  const bedLabel = isPastBedtime
+    ? '今すぐ寝たら、体に残るカフェイン'
+    : `${formatBedtime(settings.bedtimeMinutes)} に寝たとき、体に残るカフェイン`;
+
+  const coffees = evaluation.drinks.filter((d) => COFFEE_IDS.has(d.drink.id));
+  const teas = evaluation.drinks.filter((d) => !COFFEE_IDS.has(d.drink.id));
 
   // 下に出るトースト（高さ約 90px）が取り消しボタンに重なると続けて取り消せないため、
   // 一番下までスクロールしたときにボタンがトーストより上に来るだけの余白を下に取る
   return (
-    <div className='mx-auto flex min-h-dvh w-full max-w-lg flex-col px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[calc(7rem+env(safe-area-inset-bottom))]'>
-      <header className='flex flex-col gap-3 px-4 pt-1 pb-5'>
-        <h1 className='sr-only'>寝る前のカフェイン</h1>
-        <div className='flex items-start justify-between gap-3'>
-          <p className='flex min-w-0 flex-col gap-1'>
-            <span className='text-muted-foreground text-sm'>{tonightLabel}</span>
-            <span className='flex flex-wrap items-center gap-x-3 gap-y-1'>
-              <span className='text-5xl leading-none font-bold tracking-tight tabular-nums'>
-                {evaluation.withoutDrink.residualMg}
-                <span className='ml-1 text-xl font-medium tracking-normal'>mg</span>
-              </span>
-              <VerdictBadge verdict={evaluation.withoutDrink.verdict} className='text-lg' />
-            </span>
-          </p>
-          <Link
-            to='/settings'
-            className='text-muted-foreground hover:bg-muted active:bg-accent focus-visible:ring-ring/60 -mr-3 -mt-1 flex size-12 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl text-xs outline-none focus-visible:ring-3'
-          >
-            <Settings aria-hidden className='size-5' />
-            設定
-          </Link>
-        </div>
-        <div className='flex items-center gap-3'>
-          <div
-            role='img'
-            aria-label={`今の 1 日に飲んだ分。${layerDescription === '' ? 'まだありません' : layerDescription}。境目は ${thresholds.lower}mg と ${thresholds.upper}mg`}
-            className='grow'
-          >
-            <Gauge
-              segments={tonightSegments}
-              scaleMax={scaleMax}
-              thresholds={thresholds}
-              className='h-4'
+    <div className='mx-auto flex min-h-dvh w-full max-w-lg flex-col px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[calc(7rem+env(safe-area-inset-bottom))]'>
+      <div className='flex items-center justify-between px-2 pb-2'>
+        <h1 className='text-base font-bold tracking-wide'>寝る前のカフェイン</h1>
+        <Link
+          to='/settings'
+          className='text-muted-foreground hover:bg-muted active:bg-accent focus-visible:ring-ring/60 -mr-1 flex size-12 shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl text-xs outline-none focus-visible:ring-3'
+        >
+          <Settings aria-hidden className='size-5' />
+          設定
+        </Link>
+      </div>
+
+      {/* 寝る前の画面であることを、背景の色に関係なく夜の窓として見せるため、この枠だけ常にダークモードの色にする */}
+      <header className='dark night-window text-foreground relative overflow-hidden rounded-[2rem] px-5 pt-5 pb-4'>
+        <NightSky />
+        <div className='relative flex items-end gap-3'>
+          <div className='flex min-w-0 grow flex-col gap-2 pb-2'>
+            <p className='text-muted-foreground text-sm leading-snug'>{bedLabel}</p>
+            <p className='text-6xl leading-none font-bold tracking-tight tabular-nums'>
+              {evaluation.withoutDrink.residualMg}
+              <span className='ml-1 text-xl font-medium tracking-normal'>mg</span>
+            </p>
+            <VerdictBadge
+              verdict={evaluation.withoutDrink.verdict}
+              className='self-start text-base'
             />
+            <p className='text-sm leading-snug font-medium'>
+              {marginMessage(evaluation.withoutDrink, thresholds)}
+            </p>
           </div>
-          {/* 飲み物ボタンの横棒と左右の端をそろえ、境目の線が縦一列に並ぶようにする */}
-          <span aria-hidden className='w-12 shrink-0' />
+          <NightGlass
+            layers={glassLayers}
+            thresholds={thresholds}
+            label={glassLabel}
+            className='h-40 w-[7.5rem]'
+          />
         </div>
-        <div className='text-muted-foreground flex flex-wrap justify-between gap-x-4 gap-y-1 text-sm'>
+        <div className='text-muted-foreground relative mt-3 flex flex-wrap justify-between gap-x-4 gap-y-1 border-t border-white/10 pt-3 text-sm'>
           <p>
             昨夜{' '}
             {evaluation.lastNight === null ? (
@@ -148,27 +163,16 @@ function MainPage() {
         </div>
       </header>
 
-      <main className='flex flex-col gap-10'>
-        <section aria-labelledby='drinks-heading'>
-          <h2 id='drinks-heading' className='sr-only'>
-            飲み物
+      <main className='flex flex-col gap-8 pt-6'>
+        <section aria-labelledby='drinks-heading' className='flex flex-col gap-3'>
+          <h2 id='drinks-heading' className='px-2 text-lg font-bold'>
+            次の 1 杯、どれにする？
           </h2>
-          <ul className='flex flex-col gap-2'>
-            {evaluation.drinks.map((assessment) => (
-              <li key={assessment.drink.id}>
-                <DrinkButton
-                  assessment={assessment}
-                  baseMg={evaluation.withoutDrink.residualMg}
-                  scaleMax={scaleMax}
-                  thresholds={thresholds}
-                  onRecord={() => handleRecord(assessment.drink.id)}
-                />
-              </li>
-            ))}
-          </ul>
+          <DrinkShelf drinks={coffees} columns='grid-cols-3' onRecord={handleRecord} />
+          <DrinkShelf drinks={teas} columns='grid-cols-2' onRecord={handleRecord} />
         </section>
 
-        <section aria-labelledby='records-heading' className='flex flex-col gap-2 px-4'>
+        <section aria-labelledby='records-heading' className='flex flex-col gap-2 px-2'>
           <h2 id='records-heading' className='text-muted-foreground text-sm font-bold'>
             今日の記録
           </h2>
@@ -202,6 +206,54 @@ function MainPage() {
           </Button>
         </section>
       </main>
+    </div>
+  );
+}
+
+type DrinkShelfProps = {
+  drinks: DrinkAssessment[];
+  columns: string;
+  onRecord: (drinkId: DrinkId) => void;
+};
+
+function DrinkShelf({ drinks, columns, onRecord }: DrinkShelfProps) {
+  return (
+    <ul className={cn('grid gap-2.5', columns)}>
+      {drinks.map((assessment) => (
+        <li key={assessment.drink.id}>
+          <DrinkButton assessment={assessment} onRecord={() => onRecord(assessment.drink.id)} />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const STARS = [
+  { top: '14%', left: '8%', size: 2 },
+  { top: '30%', left: '46%', size: 1.5 },
+  { top: '10%', left: '58%', size: 2.5 },
+  { top: '52%', left: '36%', size: 1.5 },
+  { top: '22%', left: '30%', size: 1 },
+  { top: '68%', left: '6%', size: 1.5 },
+];
+
+function NightSky() {
+  return (
+    <div aria-hidden className='pointer-events-none absolute inset-0'>
+      {STARS.map((star) => (
+        <span
+          key={`${star.top}-${star.left}`}
+          className='night-star absolute rounded-full bg-white'
+          style={{ top: star.top, left: star.left, width: star.size, height: star.size }}
+        />
+      ))}
+      <svg viewBox='0 0 24 24' aria-hidden className='absolute top-4 right-5 size-6 text-[#f5e9b8]'>
+        <path
+          d='M15.5 3.5a8.5 8.5 0 1 0 5 15.4A9 9 0 0 1 15.5 3.5Z'
+          fill='currentColor'
+          fillOpacity='0.9'
+        />
+      </svg>
     </div>
   );
 }
