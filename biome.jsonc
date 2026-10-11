@@ -1,0 +1,152 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "**/*.{cjs,mjs,cts,mts,js,jsx,ts,tsx}",
+      "**/*.json",
+      "**/*.jsonc",
+      "!node_modules",
+      "!**/dist",
+      "!**/src/routeTree.gen.ts",
+      "!**/worker-configuration.d.ts",
+      "!**/.wrangler",
+      "!**/.claude"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": true,
+    "attributePosition": "auto",
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "includes": [
+      "**/*.{cjs,mjs,cts,mts,js,jsx,ts,tsx}",
+      "**/*.json",
+      "**/*.jsonc",
+      "!node_modules",
+      "!**/dist",
+      "!**/src/routeTree.gen.ts",
+      "!**/worker-configuration.d.ts"
+    ]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noImplicitAnyLet": "error",
+        "noEvolvingTypes": "error",
+        "noImportCycles": "error",
+        "noUnusedExpressions": "error",
+        "noUnnecessaryConditions": "error",
+        // .then() / .catch() のネストを禁止し async/await を促進
+        "noNestedPromises": "error",
+        // for...in を禁止(Object.keys/entries を使用)
+        "noForIn": "error"
+      },
+      "style": {
+        "useConsistentTypeDefinitions": {
+          "level": "warn",
+          "options": {
+            "style": "type"
+          }
+        },
+        "noParameterAssign": "error",
+        "useConsistentArrayType": "error",
+        "useArrayLiterals": "error",
+        "useBlockStatements": "error",
+        // a = b = c のような連鎖代入を禁止
+        "noMultiAssign": "error"
+      },
+      "correctness": {
+        "noUnresolvedImports": "off"
+      },
+      "complexity": {
+        "noUselessUndefined": "error",
+        "useLiteralKeys": "off",
+        // 関数の引数は最大3つまで(テストファイルは overrides で除外)
+        "useMaxParams": {
+          "level": "error",
+          "options": {
+            "max": 3
+          }
+        }
+      },
+      "nursery": {
+        "noFloatingPromises": "error",
+        "noMisusedPromises": "error"
+      }
+    }
+  },
+  "json": {
+    "parser": {
+      "allowTrailingCommas": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "overrides": [
+    {
+      // shadcn/ui の生成コード。CLI で再生成されるため手を入れず、
+      // ベンダーコード側の書き方に合わせて該当ルールだけ止める
+      "includes": ["**/src/components/ui/**"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "rules": {
+          "a11y": {
+            "useSemanticElements": "off",
+            "useKeyWithClickEvents": "off",
+            "noRedundantRoles": "off"
+          },
+          "style": {
+            "useImportType": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "useMaxParams": "off"
+          }
+        }
+      }
+    }
+  ],
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "off",
+        "noDuplicateClasses": "on"
+      }
+    }
+  },
+  "html": {
+    "experimentalFullSupportEnabled": true,
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "lineWidth": 100
+    }
+  }
+}
