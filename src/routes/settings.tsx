@@ -18,7 +18,7 @@ import {
   toSettingsForm,
   validateSettings,
 } from '@/domain/settings';
-import type { DrinkId, Thresholds } from '@/domain/types';
+import type { DrinkId, Source, Thresholds } from '@/domain/types';
 
 export const Route = createFileRoute('/settings')({
   head: () => ({ meta: [{ title: '設定 | 寝る前のカフェイン' }] }),
@@ -71,6 +71,25 @@ function previewThresholds(form: SettingsForm, saved: Thresholds): Thresholds {
     lower >= 0 &&
     upper >= lower;
   return valid ? { lower, upper } : saved;
+}
+
+const HALF_LIFE_SOURCE: Source = {
+  label: '欧州食品安全機関（EFSA）の解説資料',
+  url: 'https://www.efsa.europa.eu/sites/default/files/corporate_publications/files/efsaexplainscaffeine150527.pdf',
+};
+
+function SourceLink({ source }: { source: Source }) {
+  return (
+    <a
+      href={source.url}
+      target='_blank'
+      rel='noreferrer'
+      className='hover:text-foreground focus-visible:ring-ring/60 rounded-sm underline underline-offset-2 outline-none focus-visible:ring-3'
+    >
+      {source.label}
+      <span className='sr-only'>（新しいタブで開きます）</span>
+    </a>
+  );
 }
 
 type SectionProps = {
@@ -166,6 +185,11 @@ function SettingsPage() {
           <p className='text-muted-foreground text-sm'>
             自分で決めた値です。寝つきが悪かった日は、昨夜の残量と比べて調整してください。
           </p>
+          <p className='text-muted-foreground text-xs leading-relaxed'>
+            残量は、体内のカフェインが 8 時間で半分になるとして計算しています。8
+            時間は健康な成人の半減期（2〜8 時間）の上限です。出典:{' '}
+            <SourceLink source={HALF_LIFE_SOURCE} />
+          </p>
           <div className='flex flex-col gap-2'>
             <p className='text-base'>
               昨夜{' '}
@@ -218,6 +242,7 @@ function SettingsPage() {
                   note={[drink.detail, drink.isEstimate ? '推定値' : null]
                     .filter((s) => s !== null)
                     .join('・')}
+                  source={drink.source}
                   value={form.caffeineMg[drink.id]}
                   onChange={(value) => updateCaffeine(drink.id, value)}
                   error={errors.caffeineMg[drink.id]}
@@ -297,12 +322,22 @@ type CaffeineFieldProps = {
   drinkId: DrinkId;
   name: string;
   note: string;
+  source: Source;
   value: string;
   onChange: (value: string) => void;
   error: string | undefined;
 };
 
-function CaffeineField({ id, drinkId, name, note, value, onChange, error }: CaffeineFieldProps) {
+function CaffeineField({
+  id,
+  drinkId,
+  name,
+  note,
+  source,
+  value,
+  onChange,
+  error,
+}: CaffeineFieldProps) {
   const errorId = `${id}-error`;
   const noteId = `${id}-note`;
   return (
@@ -328,6 +363,9 @@ function CaffeineField({ id, drinkId, name, note, value, onChange, error }: Caff
         />
         <span className='text-muted-foreground w-6 shrink-0 text-base'>mg</span>
       </div>
+      <p className='text-muted-foreground pl-9 text-xs leading-relaxed'>
+        出典: <SourceLink source={source} />
+      </p>
       <FieldError id={errorId} message={error} />
     </div>
   );

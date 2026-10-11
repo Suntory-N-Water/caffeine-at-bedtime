@@ -16,6 +16,12 @@ export type Drink = {
   detail: string | null;
   defaultCaffeineMg: number;
   isEstimate: boolean;
+  source: Source;
+};
+
+export type Source = {
+  label: string;
+  url: string;
 };
 
 export type CaffeineRecord = {
