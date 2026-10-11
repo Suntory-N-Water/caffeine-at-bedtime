@@ -97,9 +97,9 @@ function MainPage() {
   const teas = evaluation.drinks.filter((d) => !COFFEE_IDS.has(d.drink.id));
 
   // 下に出るトースト（高さ約 90px）が取り消しボタンに重なると続けて取り消せないため、
-  // 一番下までスクロールしたときにボタンがトーストより上に来るだけの余白を下に取る
+  // 一番下までスクロールしたときに、この余白とフッターの高さでボタンがトーストより上に来るようにする
   return (
-    <div className='mx-auto flex min-h-dvh w-full max-w-lg flex-col px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[calc(7rem+env(safe-area-inset-bottom))]'>
+    <div className='mx-auto flex min-h-dvh w-full max-w-lg flex-col px-3 pt-[max(0.75rem,env(safe-area-inset-top))] pb-16'>
       <div className='flex items-center justify-between px-2 pb-2'>
         <h1 className='text-base font-bold tracking-wide'>寝る前のカフェイン</h1>
         <Link

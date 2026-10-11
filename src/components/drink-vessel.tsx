@@ -43,8 +43,9 @@ function Steam() {
 }
 
 function Mug({ liquid }: { liquid: string }) {
+  // 取っ手を含めた幅の中心が描画範囲の中心より 4 だけ右にあり、ほかの容器と並べると右にずれて見えるため、4 だけ左へ動かす
   return (
-    <g strokeLinejoin='round'>
+    <g strokeLinejoin='round' transform='translate(-4 0)'>
       <Steam />
       <path
         d='M48 34 h3 a9 9 0 0 1 0 18 h-3'

@@ -149,7 +149,7 @@ function SettingsPage() {
   const lastNightMg = lastNight?.residualMg ?? 0;
 
   return (
-    <div className='mx-auto w-full max-w-lg px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]'>
+    <div className='mx-auto w-full max-w-lg px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-6'>
       {/* ホーム画面に追加して開くと、ブラウザの戻るボタンが表示されないため、メイン画面へのリンクを置く */}
       <Link
         to='/'
