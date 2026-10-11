@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { ChevronLeft } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -149,7 +150,15 @@ function SettingsPage() {
 
   return (
     <div className='mx-auto w-full max-w-lg px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]'>
-      <h1 className='text-2xl font-bold'>設定</h1>
+      {/* ホーム画面に追加して開くと、ブラウザの戻るボタンが表示されないため、メイン画面へのリンクを置く */}
+      <Link
+        to='/'
+        className='text-muted-foreground hover:bg-muted active:bg-accent focus-visible:ring-ring/60 -ml-3 flex h-11 w-fit items-center gap-1 rounded-xl pr-3 pl-2 text-base outline-none focus-visible:ring-3'
+      >
+        <ChevronLeft aria-hidden className='size-5' />
+        戻る
+      </Link>
+      <h1 className='mt-1 text-2xl font-bold'>設定</h1>
 
       <form noValidate onSubmit={handleSubmit} className='divide-border flex flex-col divide-y'>
         <Section title='就寝時刻' onReset={() => update({ bedtime: DEFAULT_FORM.bedtime })}>
