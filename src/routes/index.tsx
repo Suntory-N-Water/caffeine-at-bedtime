@@ -89,9 +89,9 @@ function MainPage() {
   }。線は ${thresholds.lower}mg と ${thresholds.upper}mg`;
 
   const isPastBedtime = now >= bedtimeOf(dayOf(now), settings.bedtimeMinutes);
-  const bedWhen = isPastBedtime
-    ? '今すぐ寝たら'
-    : `${formatBedtime(settings.bedtimeMinutes)} に寝たとき`;
+  const bedLabel = isPastBedtime
+    ? '今寝たら体に残る量'
+    : `${formatBedtime(settings.bedtimeMinutes)} に体に残る量`;
 
   const coffees = evaluation.drinks.filter((d) => COFFEE_IDS.has(d.drink.id));
   const teas = evaluation.drinks.filter((d) => !COFFEE_IDS.has(d.drink.id));
@@ -115,13 +115,9 @@ function MainPage() {
       <header className='dark night-window text-foreground relative overflow-hidden rounded-[2rem] px-5 pt-5 pb-4'>
         <div className='relative flex items-end gap-3'>
           <div className='flex min-w-0 grow flex-col gap-2 pb-2'>
-            <p className='text-muted-foreground flex items-start gap-1.5 text-sm leading-snug'>
+            <p className='text-muted-foreground flex items-start gap-1.5 text-sm leading-snug break-keep'>
               <Moon />
-              <span>
-                {/* 375px の幅では「体に／残る」のように語の途中で折り返されるため、句の切れ目で改行する */}
-                <span className='block'>{bedWhen}、</span>
-                <span className='block'>体に残るカフェイン</span>
-              </span>
+              {bedLabel}
             </p>
             <p className='text-6xl leading-none font-bold tracking-tight tabular-nums'>
               {evaluation.withoutDrink.residualMg}
@@ -171,20 +167,18 @@ function MainPage() {
 
       <main className='flex flex-col gap-8 pt-6'>
         <section aria-labelledby='drinks-heading' className='flex flex-col gap-3'>
-          <h2 id='drinks-heading' className='px-2 text-lg font-bold'>
-            次の 1 杯、どれにする？
+          <h2 id='drinks-heading' className='sr-only'>
+            飲み物
           </h2>
           <DrinkShelf drinks={coffees} columns='grid-cols-3' onRecord={handleRecord} />
           <DrinkShelf drinks={teas} columns='grid-cols-2' onRecord={handleRecord} />
         </section>
 
-        <section aria-labelledby='records-heading' className='flex flex-col gap-2 px-2'>
-          <h2 id='records-heading' className='text-muted-foreground text-sm font-bold'>
-            今日の記録
-          </h2>
-          {evaluation.todayRecords.length === 0 ? (
-            <p className='text-muted-foreground text-base'>まだ記録がありません</p>
-          ) : (
+        {evaluation.todayRecords.length > 0 && (
+          <section aria-labelledby='records-heading' className='flex flex-col gap-2 px-2'>
+            <h2 id='records-heading' className='text-muted-foreground text-sm font-bold'>
+              今日の記録
+            </h2>
             <ul className='flex flex-col'>
               {evaluation.todayRecords.map((r) => (
                 <li key={r.id} className='flex items-center gap-3 py-1.5 text-base'>
@@ -199,18 +193,17 @@ function MainPage() {
                 </li>
               ))}
             </ul>
-          )}
-          <Button
-            type='button'
-            variant='ghost'
-            className='text-verdict-out-text hover:text-verdict-out-text -ml-3 h-11 self-start px-3 text-base'
-            disabled={evaluation.todayRecords.length === 0}
-            onClick={handleUndo}
-          >
-            <Undo2 aria-hidden className='size-5' />
-            直前の記録を取り消す
-          </Button>
-        </section>
+            <Button
+              type='button'
+              variant='ghost'
+              className='text-verdict-out-text hover:text-verdict-out-text -ml-3 h-11 self-start px-3 text-base'
+              onClick={handleUndo}
+            >
+              <Undo2 aria-hidden className='size-5' />
+              直前の記録を取り消す
+            </Button>
+          </section>
+        )}
       </main>
     </div>
   );

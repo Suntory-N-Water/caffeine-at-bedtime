@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { ChevronLeft } from 'lucide-react';
+import { BookOpen, ChevronLeft, Hourglass, UserRound } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -75,7 +75,7 @@ function previewThresholds(form: SettingsForm, saved: Thresholds): Thresholds {
 }
 
 const HALF_LIFE_SOURCE: Source = {
-  label: '欧州食品安全機関（EFSA）の解説資料',
+  label: 'EFSA の解説資料',
   url: 'https://www.efsa.europa.eu/sites/default/files/corporate_publications/files/efsaexplainscaffeine150527.pdf',
 };
 
@@ -174,15 +174,9 @@ function SettingsPage() {
               value={form.bedtime}
               onChange={(e) => update({ bedtime: e.target.value })}
               aria-invalid={errors.bedtime !== undefined}
-              aria-describedby={describedBy(
-                'bedtime-hint',
-                errors.bedtime !== undefined && 'bedtime-error',
-              )}
+              aria-describedby={describedBy(errors.bedtime !== undefined && 'bedtime-error')}
               className='h-12 w-36 text-xl font-bold tabular-nums'
             />
-            <p id='bedtime-hint' className='text-muted-foreground text-sm'>
-              0:00〜4:59 は翌日の時刻として扱います
-            </p>
             <FieldError id='bedtime-error' message={errors.bedtime} />
           </div>
         </Section>
@@ -191,14 +185,18 @@ function SettingsPage() {
           title='判定の境目'
           onReset={() => update({ lower: DEFAULT_FORM.lower, upper: DEFAULT_FORM.upper })}
         >
-          <p className='text-muted-foreground text-sm'>
-            自分で決めた値です。寝つきが悪かった日は、昨夜の残量と比べて調整してください。
-          </p>
-          <p className='text-muted-foreground text-xs leading-relaxed'>
-            残量は、体内のカフェインが 8 時間で半分になるとして計算しています。8
-            時間は健康な成人の半減期（2〜8 時間）の上限です。出典:{' '}
-            <SourceLink source={HALF_LIFE_SOURCE} />
-          </p>
+          <ul className='text-muted-foreground flex flex-col gap-1.5 text-sm'>
+            <li className='flex items-start gap-2'>
+              <UserRound aria-hidden className='mt-0.5 size-4 shrink-0' />
+              あなたの寝つきに合わせて決める値
+            </li>
+            <li className='flex items-start gap-2'>
+              <Hourglass aria-hidden className='mt-0.5 size-4 shrink-0' />
+              <span>
+                半減期 8 時間で計算 <SourceLink source={HALF_LIFE_SOURCE} />
+              </span>
+            </li>
+          </ul>
           <div className='flex flex-col gap-2'>
             <p className='text-base'>
               昨夜{' '}
@@ -263,7 +261,7 @@ function SettingsPage() {
 
         <div className='pt-6'>
           <Button type='submit' className='h-12 w-full text-base'>
-            保存
+            設定を保存
           </Button>
         </div>
       </form>
@@ -372,8 +370,9 @@ function CaffeineField({
         />
         <span className='text-muted-foreground w-6 shrink-0 text-base'>mg</span>
       </div>
-      <p className='text-muted-foreground pl-9 text-xs leading-relaxed'>
-        出典: <SourceLink source={source} />
+      <p className='text-muted-foreground flex items-start gap-1.5 pl-9 text-xs leading-relaxed'>
+        <BookOpen aria-hidden className='mt-0.5 size-3.5 shrink-0' />
+        <SourceLink source={source} />
       </p>
       <FieldError id={errorId} message={error} />
     </div>
