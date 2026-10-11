@@ -14,6 +14,9 @@ declare module '@tanstack/react-router' {
   }
 }
 
+// iOS Safari は touchstart のリスナーがないと :active を適用しないため、押している間にボタンの見た目が変わらない
+document.addEventListener('touchstart', () => undefined, { passive: true });
+
 const rootElement = document.getElementById('root');
 
 if (rootElement !== null) {

@@ -10,14 +10,15 @@ export const DRINKS: readonly Drink[] = [
   },
   {
     id: 'seven-cafe-hot',
-    name: 'セブンカフェ ホット R',
+    // 375px の幅で「R」だけが次の行に送られないよう、R の前はノーブレークスペースにする
+    name: 'セブンカフェ ホット\u00a0R',
     detail: null,
     defaultCaffeineMg: 98,
     isEstimate: false,
   },
   {
     id: 'seven-cafe-iced',
-    name: 'セブンカフェ アイス R',
+    name: 'セブンカフェ アイス\u00a0R',
     detail: null,
     defaultCaffeineMg: 92,
     isEstimate: false,

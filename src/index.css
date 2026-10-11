@@ -1,133 +1,153 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource/zen-maru-gothic/400.css";
+@import "@fontsource/zen-maru-gothic/500.css";
+@import "@fontsource/zen-maru-gothic/700.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+  --font-heading: var(--font-sans);
+  --font-sans: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-verdict-ok: var(--verdict-ok);
+  --color-verdict-gray: var(--verdict-gray);
+  --color-verdict-out: var(--verdict-out);
+  --color-verdict-ok-text: var(--verdict-ok-text);
+  --color-verdict-gray-text: var(--verdict-gray-text);
+  --color-verdict-out-text: var(--verdict-out-text);
+  --color-verdict-on: var(--verdict-on);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
+/* 色の名前と値は和色大辞典（https://www.colordic.org/w/）に合わせている */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+  --hakuji: #f8fbf8;
+  --sumi: #3f312b;
+  --koiai: #0f2350;
+  --aiiro: #165e83;
+  --ainezu: #6c848d;
+  --benihi: #e83929;
+
+  --background: var(--hakuji);
+  --foreground: var(--sumi);
+  --card: #ffffff;
+  --card-foreground: var(--sumi);
+  --popover: #ffffff;
+  --popover-foreground: var(--sumi);
+  --primary: var(--aiiro);
+  --primary-foreground: var(--hakuji);
+  --secondary: color-mix(in oklch, var(--sumi) 6%, var(--hakuji));
+  --secondary-foreground: var(--sumi);
+  --muted: color-mix(in oklch, var(--sumi) 6%, var(--hakuji));
+  --muted-foreground: color-mix(in oklch, var(--sumi) 78%, var(--hakuji));
+  --accent: color-mix(in oklch, var(--sumi) 10%, var(--hakuji));
+  --accent-foreground: var(--sumi);
+  /* 紅緋は白地の小さな文字で 4.5:1 に届かないため、文字に使う色は墨を混ぜて濃くする */
+  --destructive: var(--verdict-out-text);
+  --border: color-mix(in oklch, var(--sumi) 14%, var(--hakuji));
+  --input: color-mix(in oklch, var(--sumi) 22%, var(--hakuji));
+  --ring: var(--aiiro);
+  --radius: 0.75rem;
+
+  --verdict-ok: var(--aiiro);
+  --verdict-gray: var(--ainezu);
+  --verdict-out: var(--benihi);
+  --verdict-ok-text: var(--aiiro);
+  --verdict-gray-text: color-mix(in oklch, var(--ainezu) 75%, var(--sumi));
+  --verdict-out-text: color-mix(in oklch, var(--benihi) 78%, var(--sumi));
+  --verdict-on: #ffffff;
+
+  --drink-home-coffee: #583822;
+  --drink-seven-cafe-hot: #6f4b3e;
+  --drink-seven-cafe-iced: #8d6449;
+  --drink-green-tea: #aacf53;
+  --drink-hojicha: #bf783a;
+  --drink-jasmine-tea: #e6b422;
+  --drink-black-tea: #ce5242;
 }
 
+/* 濃藍の背景では藍色と藍鼠が沈むため、判定の色は白磁を混ぜて明るくし、文字を濃藍にする */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+  --background: var(--koiai);
+  --foreground: var(--hakuji);
+  --card: color-mix(in oklch, var(--hakuji) 8%, var(--koiai));
+  --card-foreground: var(--hakuji);
+  --popover: color-mix(in oklch, var(--hakuji) 12%, var(--koiai));
+  --popover-foreground: var(--hakuji);
+  --primary: color-mix(in oklch, var(--aiiro) 45%, var(--hakuji));
+  --primary-foreground: var(--koiai);
+  --secondary: color-mix(in oklch, var(--hakuji) 12%, var(--koiai));
+  --secondary-foreground: var(--hakuji);
+  --muted: color-mix(in oklch, var(--hakuji) 12%, var(--koiai));
+  --muted-foreground: color-mix(in oklch, var(--hakuji) 72%, var(--koiai));
+  --accent: color-mix(in oklch, var(--hakuji) 16%, var(--koiai));
+  --accent-foreground: var(--hakuji);
+  --border: color-mix(in oklch, var(--hakuji) 16%, var(--koiai));
+  --input: color-mix(in oklch, var(--hakuji) 24%, var(--koiai));
+  --ring: color-mix(in oklch, var(--aiiro) 45%, var(--hakuji));
+
+  --verdict-ok: color-mix(in oklch, var(--aiiro) 45%, var(--hakuji));
+  --verdict-gray: color-mix(in oklch, var(--ainezu) 55%, var(--hakuji));
+  --verdict-out: color-mix(in oklch, var(--benihi) 70%, var(--hakuji));
+  --verdict-ok-text: var(--verdict-ok);
+  --verdict-gray-text: var(--verdict-gray);
+  --verdict-out-text: var(--verdict-out);
+  --verdict-on: var(--koiai);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
+}
+
+@keyframes pour {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+.cup-layer-enter {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: pour 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cup-layer-enter {
+    animation: none;
+  }
 }
