@@ -32,9 +32,9 @@ const COFFEE_IDS: ReadonlySet<DrinkId> = new Set([
 function marginMessage({ residualMg, verdict }: Assessment, thresholds: Thresholds): string {
   const margin = thresholds.upper - residualMg;
   if (verdict === 'out') {
-    return `アウトの線を ${-margin}mg 越えています`;
+    return `寝つきが悪くなる量を ${-margin}mg 越えています`;
   }
-  return `アウトの線まで あと ${margin}mg`;
+  return `寝つきが悪くなる量まで あと ${margin}mg`;
 }
 
 function MainPage() {
@@ -127,7 +127,7 @@ function MainPage() {
               verdict={evaluation.withoutDrink.verdict}
               className='self-start text-base'
             />
-            <p className='text-sm leading-snug font-medium'>
+            <p className='text-sm leading-snug font-medium break-keep'>
               {marginMessage(evaluation.withoutDrink, thresholds)}
             </p>
           </div>

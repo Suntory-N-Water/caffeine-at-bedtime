@@ -24,10 +24,7 @@ export function DrinkButton({ assessment, onRecord }: DrinkButtonProps) {
       style={{ '--liquid': drinkColor(drink.id) } as CSSProperties}
       className='group bg-card focus-visible:ring-ring/60 flex h-full w-full touch-manipulation flex-col items-center gap-1 rounded-3xl px-2 pt-3 pb-3.5 text-center shadow-[0_1px_0_rgb(63_49_43/0.04),0_6px_16px_-8px_rgb(63_49_43/0.25)] transition-[background-color,transform] duration-150 ease-out outline-none hover:bg-[color-mix(in_oklch,var(--liquid)_10%,var(--card))] focus-visible:ring-3 active:scale-[0.97] active:bg-[color-mix(in_oklch,var(--liquid)_20%,var(--card))] active:duration-75 motion-reduce:active:scale-100 dark:shadow-none'
     >
-      <DrinkVessel
-        drinkId={drink.id}
-        className='text-foreground h-16 w-13 origin-bottom transition-transform duration-200 ease-out group-active:-rotate-[16deg] motion-reduce:group-active:rotate-0'
-      />
+      <DrinkVessel drinkId={drink.id} className='text-foreground h-16 w-13' />
       <span className='flex min-h-[2.75em] items-center text-[0.9375rem] leading-snug font-bold break-keep'>
         {drink.name}
       </span>
