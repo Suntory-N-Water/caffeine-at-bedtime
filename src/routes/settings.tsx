@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { RotateCcw } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useAppState } from '@/app-state';
 import { DrinkSwatch } from '@/components/cup';
+import { Gauge, gaugeScaleMax } from '@/components/gauge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,7 +18,7 @@ import {
   toSettingsForm,
   validateSettings,
 } from '@/domain/settings';
-import type { DrinkId } from '@/domain/types';
+import type { DrinkId, Thresholds } from '@/domain/types';
 
 export const Route = createFileRoute('/settings')({
   head: () => ({ meta: [{ title: '設定 | 寝る前のカフェイン' }] }),
@@ -59,6 +59,20 @@ function describedBy(...ids: (string | false)[]): string | undefined {
   return joined === '' ? undefined : joined;
 }
 
+// 入力途中の値でも横棒の境目を動かすため、数字として読めない間は保存済みの値を使う
+function previewThresholds(form: SettingsForm, saved: Thresholds): Thresholds {
+  const lower = Number(form.lower);
+  const upper = Number(form.upper);
+  const valid =
+    form.lower.trim() !== '' &&
+    form.upper.trim() !== '' &&
+    Number.isInteger(lower) &&
+    Number.isInteger(upper) &&
+    lower >= 0 &&
+    upper >= lower;
+  return valid ? { lower, upper } : saved;
+}
+
 type SectionProps = {
   title: string;
   onReset: () => void;
@@ -67,16 +81,15 @@ type SectionProps = {
 
 function Section({ title, onReset, children }: SectionProps) {
   return (
-    <fieldset className='border-border flex min-w-0 flex-col gap-4 rounded-xl border p-4'>
+    <fieldset className='flex min-w-0 flex-col gap-4 py-6'>
       <div className='flex items-center justify-between gap-2'>
-        <legend className='float-left min-w-0 text-base font-bold break-keep'>{title}</legend>
+        <legend className='float-left min-w-0 text-lg font-bold break-keep'>{title}</legend>
         <Button
           type='button'
           variant='ghost'
-          className='text-muted-foreground h-11 px-3 text-sm'
+          className='text-muted-foreground -mr-3 h-11 px-3 text-sm font-normal'
           onClick={onReset}
         >
-          <RotateCcw aria-hidden className='size-4' />
           初期値に戻す
         </Button>
       </div>
@@ -112,16 +125,18 @@ function SettingsPage() {
   };
 
   const thresholdError = errors.thresholds;
+  const preview = previewThresholds(form, settings.thresholds);
+  const lastNightMg = lastNight?.residualMg ?? 0;
 
   return (
-    <div className='mx-auto w-full max-w-lg px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]'>
-      <h1 className='text-xl font-bold'>設定</h1>
+    <div className='mx-auto w-full max-w-lg px-6 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]'>
+      <h1 className='text-2xl font-bold'>設定</h1>
 
-      <form noValidate onSubmit={handleSubmit} className='mt-4 flex flex-col gap-6'>
+      <form noValidate onSubmit={handleSubmit} className='divide-border flex flex-col divide-y'>
         <Section title='就寝時刻' onReset={() => update({ bedtime: DEFAULT_FORM.bedtime })}>
           <div className='flex flex-col gap-2'>
-            <Label htmlFor='bedtime' className='text-base'>
-              寝る時刻
+            <Label htmlFor='bedtime' className='sr-only'>
+              就寝時刻
             </Label>
             <Input
               id='bedtime'
@@ -135,7 +150,7 @@ function SettingsPage() {
                 'bedtime-hint',
                 errors.bedtime !== undefined && 'bedtime-error',
               )}
-              className='h-11 w-36 text-base'
+              className='h-12 w-36 text-xl font-bold tabular-nums'
             />
             <p id='bedtime-hint' className='text-muted-foreground text-sm'>
               0:00〜4:59 は翌日の時刻として扱います
@@ -149,30 +164,38 @@ function SettingsPage() {
           onReset={() => update({ lower: DEFAULT_FORM.lower, upper: DEFAULT_FORM.upper })}
         >
           <p className='text-muted-foreground text-sm'>
-            自分で決めた値です。寝つきが悪かった日は、昨夜の残量を見て調整してください。
+            自分で決めた値です。寝つきが悪かった日は、昨夜の残量と比べて調整してください。
           </p>
-          <p className='text-base'>
-            昨夜の残量{' '}
-            {lastNight === null ? (
-              '記録なし'
-            ) : (
-              <>
-                <span className='font-bold tabular-nums'>{lastNight.residualMg}mg</span>{' '}
-                <VerdictLabel verdict={lastNight.verdict} />
-              </>
-            )}
-          </p>
-          <NumberField
+          <div className='flex flex-col gap-2'>
+            <p className='text-base'>
+              昨夜{' '}
+              {lastNight === null ? (
+                '記録なし'
+              ) : (
+                <>
+                  <span className='font-bold tabular-nums'>{lastNight.residualMg}mg</span>{' '}
+                  <VerdictLabel verdict={lastNight.verdict} />
+                </>
+              )}
+            </p>
+            <Gauge
+              segments={[{ key: 'last-night', mg: lastNightMg, color: 'var(--gauge-base)' }]}
+              scaleMax={gaugeScaleMax(preview, [lastNightMg])}
+              thresholds={preview}
+              className='h-3'
+            />
+          </div>
+          <ThresholdField
             id='lower'
-            label='グレーになる残量（この値以上）'
+            suffix='mg 以上でグレー'
             value={form.lower}
             onChange={(value) => update({ lower: value })}
             error={errors.lower}
             groupErrorId={thresholdError === undefined ? undefined : 'thresholds-error'}
           />
-          <NumberField
+          <ThresholdField
             id='upper'
-            label='アウトになる残量（この値を超える）'
+            suffix='mg を超えるとアウト'
             value={form.upper}
             onChange={(value) => update({ upper: value })}
             error={errors.upper}
@@ -182,71 +205,128 @@ function SettingsPage() {
         </Section>
 
         <Section
-          title='各飲み物のカフェイン量'
+          title='1 杯のカフェイン量'
           onReset={() => update({ caffeineMg: DEFAULT_FORM.caffeineMg })}
         >
-          {DRINKS.map((drink) => (
-            <NumberField
-              key={drink.id}
-              id={`caffeine-${drink.id}`}
-              label={drink.isEstimate ? `${drink.name}（推定値）` : drink.name}
-              drinkId={drink.id}
-              value={form.caffeineMg[drink.id]}
-              onChange={(value) => updateCaffeine(drink.id, value)}
-              error={errors.caffeineMg[drink.id]}
-            />
-          ))}
+          <ul className='flex flex-col gap-3'>
+            {DRINKS.map((drink) => (
+              <li key={drink.id}>
+                <CaffeineField
+                  id={`caffeine-${drink.id}`}
+                  drinkId={drink.id}
+                  name={drink.name}
+                  note={[drink.detail, drink.isEstimate ? '推定値' : null]
+                    .filter((s) => s !== null)
+                    .join('・')}
+                  value={form.caffeineMg[drink.id]}
+                  onChange={(value) => updateCaffeine(drink.id, value)}
+                  error={errors.caffeineMg[drink.id]}
+                />
+              </li>
+            ))}
+          </ul>
         </Section>
 
-        <Button type='submit' className='h-12 text-base'>
-          保存
-        </Button>
+        <div className='pt-6'>
+          <Button type='submit' className='h-12 w-full text-base'>
+            保存
+          </Button>
+        </div>
       </form>
     </div>
   );
 }
 
-type NumberFieldProps = {
+type NumberInputProps = {
   id: string;
-  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  invalid: boolean;
+  describedBy: string | undefined;
+};
+
+function NumberInput({ id, value, onChange, invalid, describedBy: described }: NumberInputProps) {
+  return (
+    <Input
+      id={id}
+      name={id}
+      type='text'
+      inputMode='numeric'
+      autoComplete='off'
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      aria-invalid={invalid}
+      aria-describedby={described}
+      className='h-11 w-20 shrink-0 text-right text-lg font-bold tabular-nums'
+    />
+  );
+}
+
+type ThresholdFieldProps = {
+  id: string;
+  suffix: string;
   value: string;
   onChange: (value: string) => void;
   error: string | undefined;
-  groupErrorId?: string | undefined;
-  drinkId?: DrinkId;
+  groupErrorId: string | undefined;
 };
 
-function NumberField({
-  id,
-  label,
-  value,
-  onChange,
-  error,
-  groupErrorId,
-  drinkId,
-}: NumberFieldProps) {
+function ThresholdField({ id, suffix, value, onChange, error, groupErrorId }: ThresholdFieldProps) {
   const errorId = `${id}-error`;
-  const invalid = error !== undefined || groupErrorId !== undefined;
   return (
-    <div className='flex flex-col gap-2'>
-      <Label htmlFor={id} className='text-base'>
-        {drinkId !== undefined && <DrinkSwatch drinkId={drinkId} className='size-5' />}
-        {label}
-      </Label>
+    <div className='flex flex-col gap-1'>
       <div className='flex items-center gap-2'>
-        <Input
+        <NumberInput
           id={id}
-          name={id}
-          type='text'
-          inputMode='numeric'
-          autoComplete='off'
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          aria-invalid={invalid}
-          aria-describedby={describedBy(error !== undefined && errorId, groupErrorId ?? false)}
-          className='h-11 w-28 text-base tabular-nums'
+          onChange={onChange}
+          invalid={error !== undefined || groupErrorId !== undefined}
+          describedBy={describedBy(error !== undefined && errorId, groupErrorId ?? false)}
         />
-        <span className='text-base'>mg</span>
+        <Label htmlFor={id} className='text-base font-normal'>
+          {suffix}
+        </Label>
+      </div>
+      <FieldError id={errorId} message={error} />
+    </div>
+  );
+}
+
+type CaffeineFieldProps = {
+  id: string;
+  drinkId: DrinkId;
+  name: string;
+  note: string;
+  value: string;
+  onChange: (value: string) => void;
+  error: string | undefined;
+};
+
+function CaffeineField({ id, drinkId, name, note, value, onChange, error }: CaffeineFieldProps) {
+  const errorId = `${id}-error`;
+  const noteId = `${id}-note`;
+  return (
+    <div className='flex flex-col gap-1'>
+      <div className='flex items-center gap-3'>
+        <DrinkSwatch drinkId={drinkId} className='size-6' />
+        <span className='flex min-w-0 grow flex-col'>
+          <Label htmlFor={id} className='text-base break-keep'>
+            {name}
+          </Label>
+          {note !== '' && (
+            <span id={noteId} className='text-muted-foreground text-sm break-keep'>
+              {note}
+            </span>
+          )}
+        </span>
+        <NumberInput
+          id={id}
+          value={value}
+          onChange={onChange}
+          invalid={error !== undefined}
+          describedBy={describedBy(note !== '' && noteId, error !== undefined && errorId)}
+        />
+        <span className='text-muted-foreground w-6 shrink-0 text-base'>mg</span>
       </div>
       <FieldError id={errorId} message={error} />
     </div>

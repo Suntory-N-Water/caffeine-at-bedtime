@@ -79,6 +79,7 @@
   --verdict-gray-text: color-mix(in oklch, var(--ainezu) 75%, var(--sumi));
   --verdict-out-text: color-mix(in oklch, var(--benihi) 78%, var(--sumi));
   --verdict-on: #ffffff;
+  --gauge-base: color-mix(in oklch, var(--sumi) 32%, var(--hakuji));
 
   --drink-home-coffee: #583822;
   --drink-seven-cafe-hot: #6f4b3e;
@@ -116,6 +117,12 @@
   --verdict-gray-text: var(--verdict-gray);
   --verdict-out-text: var(--verdict-out);
   --verdict-on: var(--koiai);
+  --gauge-base: color-mix(in oklch, var(--hakuji) 42%, var(--koiai));
+
+  /* コーヒーの 3 色は暗く、濃藍の背景では横棒が見えないため、白磁を混ぜて明るくする */
+  --drink-home-coffee: color-mix(in oklch, #583822 70%, var(--hakuji));
+  --drink-seven-cafe-hot: color-mix(in oklch, #6f4b3e 65%, var(--hakuji));
+  --drink-seven-cafe-iced: color-mix(in oklch, #8d6449 65%, var(--hakuji));
 }
 
 @layer base {
@@ -142,18 +149,17 @@
 
 @keyframes pour {
   from {
-    transform: scaleY(0);
+    transform: scaleX(0);
   }
 }
 
-.cup-layer-enter {
-  transform-box: fill-box;
-  transform-origin: bottom;
+.gauge-segment-enter {
+  transform-origin: left;
   animation: pour 450ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cup-layer-enter {
+  .gauge-segment-enter {
     animation: none;
   }
 }
