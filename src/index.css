@@ -129,6 +129,12 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  a,
+  button {
+    touch-action: manipulation;
+    /* 押したときの見た目はボタンごとに :active で付けているため、iOS の灰色のハイライトと重ねない */
+    -webkit-tap-highlight-color: transparent;
+  }
   html {
     @apply font-sans;
   }

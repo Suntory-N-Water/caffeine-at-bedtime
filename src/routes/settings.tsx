@@ -110,6 +110,7 @@ function SettingsPage() {
               id='bedtime'
               name='bedtime'
               type='time'
+              autoComplete='off'
               value={form.bedtime}
               onChange={(e) => update({ bedtime: e.target.value })}
               aria-invalid={errors.bedtime !== undefined}

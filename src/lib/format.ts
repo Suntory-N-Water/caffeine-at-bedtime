@@ -1,8 +1,9 @@
 import type { Verdict } from '@/domain/types';
 
+const timeFormat = new Intl.DateTimeFormat('ja-JP', { hour: 'numeric', minute: '2-digit' });
+
 export function formatTime(time: number): string {
-  const date = new Date(time);
-  return `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+  return timeFormat.format(time);
 }
 
 export const VERDICT_LABELS: Record<Verdict, string> = {
