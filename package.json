@@ -12,8 +12,8 @@
     "format": "biome format --write .",
     "lint:fix": "biome lint --write .",
     "type-check": "tsr generate && tsc -b",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "TZ=Asia/Tokyo vitest run",
+    "test:watch": "TZ=Asia/Tokyo vitest",
     "generate-routes": "tsr generate"
   },
   "dependencies": {
