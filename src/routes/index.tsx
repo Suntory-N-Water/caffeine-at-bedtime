@@ -89,9 +89,9 @@ function MainPage() {
   }。線は ${thresholds.lower}mg と ${thresholds.upper}mg`;
 
   const isPastBedtime = now >= bedtimeOf(dayOf(now), settings.bedtimeMinutes);
-  const bedLabel = isPastBedtime
-    ? '今すぐ寝たら、体に残るカフェイン'
-    : `${formatBedtime(settings.bedtimeMinutes)} に寝たとき、体に残るカフェイン`;
+  const bedWhen = isPastBedtime
+    ? '今すぐ寝たら'
+    : `${formatBedtime(settings.bedtimeMinutes)} に寝たとき`;
 
   const coffees = evaluation.drinks.filter((d) => COFFEE_IDS.has(d.drink.id));
   const teas = evaluation.drinks.filter((d) => !COFFEE_IDS.has(d.drink.id));
@@ -113,10 +113,16 @@ function MainPage() {
 
       {/* 寝る前の画面であることを、背景の色に関係なく夜の窓として見せるため、この枠だけ常にダークモードの色にする */}
       <header className='dark night-window text-foreground relative overflow-hidden rounded-[2rem] px-5 pt-5 pb-4'>
-        <NightSky />
         <div className='relative flex items-end gap-3'>
           <div className='flex min-w-0 grow flex-col gap-2 pb-2'>
-            <p className='text-muted-foreground text-sm leading-snug'>{bedLabel}</p>
+            <p className='text-muted-foreground flex items-start gap-1.5 text-sm leading-snug'>
+              <Moon />
+              <span>
+                {/* 375px の幅では「体に／残る」のように語の途中で折り返されるため、句の切れ目で改行する */}
+                <span className='block'>{bedWhen}、</span>
+                <span className='block'>体に残るカフェイン</span>
+              </span>
+            </p>
             <p className='text-6xl leading-none font-bold tracking-tight tabular-nums'>
               {evaluation.withoutDrink.residualMg}
               <span className='ml-1 text-xl font-medium tracking-normal'>mg</span>
@@ -228,32 +234,10 @@ function DrinkShelf({ drinks, columns, onRecord }: DrinkShelfProps) {
   );
 }
 
-const STARS = [
-  { top: '14%', left: '8%', size: 2 },
-  { top: '30%', left: '46%', size: 1.5 },
-  { top: '10%', left: '58%', size: 2.5 },
-  { top: '52%', left: '36%', size: 1.5 },
-  { top: '22%', left: '30%', size: 1 },
-  { top: '68%', left: '6%', size: 1.5 },
-];
-
-function NightSky() {
+function Moon() {
   return (
-    <div aria-hidden className='pointer-events-none absolute inset-0'>
-      {STARS.map((star) => (
-        <span
-          key={`${star.top}-${star.left}`}
-          className='night-star absolute rounded-full bg-white'
-          style={{ top: star.top, left: star.left, width: star.size, height: star.size }}
-        />
-      ))}
-      <svg viewBox='0 0 24 24' aria-hidden className='absolute top-4 right-5 size-6 text-[#f5e9b8]'>
-        <path
-          d='M15.5 3.5a8.5 8.5 0 1 0 5 15.4A9 9 0 0 1 15.5 3.5Z'
-          fill='currentColor'
-          fillOpacity='0.9'
-        />
-      </svg>
-    </div>
+    <svg viewBox='0 0 24 24' aria-hidden className='mt-px size-4 shrink-0 text-[#f5e9b8]'>
+      <path d='M15.5 3.5a8.5 8.5 0 1 0 5 15.4A9 9 0 0 1 15.5 3.5Z' fill='currentColor' />
+    </svg>
   );
 }

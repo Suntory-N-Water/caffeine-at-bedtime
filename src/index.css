@@ -199,25 +199,10 @@
   animation-delay: 1.3s;
 }
 
-@keyframes twinkle {
-  50% {
-    opacity: 0.35;
-  }
-}
-
-.night-star {
-  animation: twinkle 3.5s ease-in-out infinite;
-}
-
-.night-star:nth-child(2n) {
-  animation-delay: 1.7s;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .glass-layer-enter,
   .glass-wave,
-  .vessel-steam,
-  .night-star {
+  .vessel-steam {
     animation: none;
   }
 }

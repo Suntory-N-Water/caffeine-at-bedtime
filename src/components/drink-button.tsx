@@ -4,7 +4,7 @@ import type { DrinkAssessment } from '@/domain/evaluate';
 import { VERDICT_LABELS } from '@/lib/format';
 import { drinkColor } from './cup';
 import { DrinkVessel } from './drink-vessel';
-import { VerdictBadge } from './verdict-label';
+import { VerdictLabel } from './verdict-label';
 
 type DrinkButtonProps = {
   assessment: DrinkAssessment;
@@ -34,10 +34,11 @@ export function DrinkButton({ assessment, onRecord }: DrinkButtonProps) {
       <span className='text-muted-foreground text-sm leading-none tabular-nums'>
         {caffeineMg}mg{drink.isEstimate && '・推定値'}
       </span>
-      <span className='mt-2 flex h-7 items-center'>
-        <VerdictBadge verdict={verdict} className='text-sm' />
+      {/* 7 つのカードすべてに判定が出るため、塗ったラベルにすると容器の絵より目立つ。カードでは小さな文字に留める */}
+      <span className='mt-1.5 flex flex-col items-center gap-0.5'>
+        <VerdictLabel verdict={verdict} className='text-sm font-medium' />
+        <span className='text-muted-foreground text-xs tabular-nums'>就寝時 {residualMg}mg</span>
       </span>
-      <span className='text-muted-foreground text-xs tabular-nums'>就寝時 {residualMg}mg</span>
     </button>
   );
 }
