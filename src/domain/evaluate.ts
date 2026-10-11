@@ -1,6 +1,6 @@
 import { bedtimeOf, type Day, dayOf, isInDay, previousDay } from './day';
 import { DRINKS } from './drinks';
-import type { CaffeineRecord, Drink, Settings, Thresholds, Verdict } from './types';
+import type { CaffeineRecord, Drink, DrinkId, Settings, Thresholds, Verdict } from './types';
 import { judge } from './verdict';
 
 const HALF_LIFE_HOURS = 8;
@@ -17,8 +17,14 @@ export type DrinkAssessment = Assessment & {
   caffeineMg: number;
 };
 
+export type CupLayer = {
+  drinkId: DrinkId;
+  residualMg: number;
+};
+
 export type Evaluation = {
   withoutDrink: Assessment;
+  layers: CupLayer[];
   drinks: DrinkAssessment[];
   todayRecords: CaffeineRecord[];
   todayIntakeMg: number;
@@ -35,6 +41,15 @@ function totalResidual(records: CaffeineRecord[], bedAt: number): number {
     (sum, r) => sum + residualOf(r.caffeineMg, (bedAt - r.drankAt) / HOUR_MS),
     0,
   );
+}
+
+function layersOf(records: CaffeineRecord[], bedAt: number): CupLayer[] {
+  const layers = new Map<DrinkId, number>();
+  for (const r of [...records].sort((a, b) => a.drankAt - b.drankAt)) {
+    const residual = residualOf(r.caffeineMg, (bedAt - r.drankAt) / HOUR_MS);
+    layers.set(r.drinkId, (layers.get(r.drinkId) ?? 0) + residual);
+  }
+  return [...layers].map(([drinkId, residualMg]) => ({ drinkId, residualMg }));
 }
 
 function assess(residualMg: number, thresholds: Thresholds): Assessment {
@@ -63,6 +78,7 @@ export function evaluate(records: CaffeineRecord[], settings: Settings, now: num
 
   return {
     withoutDrink: assess(baseResidual, settings.thresholds),
+    layers: layersOf(todayRecords, bedAt),
     drinks,
     todayRecords,
     todayIntakeMg,

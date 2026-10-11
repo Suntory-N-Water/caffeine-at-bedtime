@@ -83,6 +83,24 @@ describe('就寝時の残量の計算', () => {
   });
 });
 
+describe('今夜のカップの層', () => {
+  it('今の 1 日に飲んだ飲み物ごとに、就寝時の残量を最初に飲んだ順で返すこと', () => {
+    const records = [
+      coffee(at(10, 10, '20:00')),
+      coffee(at(10, 11, '9:00')),
+      record('green-tea', at(10, 11, '16:00'), 65),
+      coffee(at(10, 11, '13:00')),
+    ];
+
+    const result = evaluate(records, DEFAULT_SETTINGS, at(10, 11, '17:00'));
+
+    expect(result.layers.map((l) => [l.drinkId, Math.round(l.residualMg)])).toEqual([
+      ['seven-cafe-hot', 70],
+      ['green-tea', 35],
+    ]);
+  });
+});
+
 describe('1 日の区切り', () => {
   it('4:59 の記録は前の 1 日、5:00 の記録は今の 1 日として扱うこと', () => {
     const before = record('green-tea', at(10, 11, '4:59'), 65);
