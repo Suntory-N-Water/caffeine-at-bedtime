@@ -177,84 +177,6 @@
   animation: wave 3.2s linear infinite;
 }
 
-/* 層が満ちる動き（600ms）が終わる頃にあふれ始め、少し遅れて水たまりが広がる順にする */
-@keyframes spill-in {
-  from {
-    opacity: 0;
-  }
-}
-
-.glass-spill {
-  animation: spill-in 300ms ease-out 450ms backwards;
-}
-
-@keyframes spill-flow {
-  to {
-    stroke-dashoffset: -19;
-  }
-}
-
-.glass-spill-stream {
-  animation: spill-flow 320ms linear infinite;
-}
-
-@keyframes spill-dome {
-  50% {
-    transform: scaleY(1.25);
-  }
-}
-
-.glass-spill-dome {
-  transform-box: fill-box;
-  transform-origin: bottom;
-  animation: spill-dome 900ms ease-in-out infinite;
-}
-
-@keyframes spill-bead {
-  50% {
-    transform: scale(1.15, 1.3);
-  }
-}
-
-.glass-spill-bead {
-  transform-box: fill-box;
-  transform-origin: top;
-  animation: spill-bead 1.6s ease-in-out infinite;
-}
-
-@keyframes spill-drop {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  85% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(108px);
-    opacity: 0;
-  }
-}
-
-.glass-spill-drop {
-  animation: spill-drop 1.4s cubic-bezier(0.55, 0, 1, 0.45) infinite backwards;
-}
-
-@keyframes spill-puddle {
-  0% {
-    transform: scaleX(0.15);
-  }
-  70% {
-    transform: scaleX(1.06);
-  }
-}
-
-.glass-spill-puddle {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: spill-puddle 1.1s cubic-bezier(0.22, 1, 0.36, 1) 650ms backwards;
-}
-
 @keyframes steam {
   0% {
     opacity: 0;
@@ -280,17 +202,7 @@
 @media (prefers-reduced-motion: reduce) {
   .glass-layer-enter,
   .glass-wave,
-  .glass-spill,
-  .glass-spill-stream,
-  .glass-spill-dome,
-  .glass-spill-bead,
-  .glass-spill-puddle,
   .vessel-steam {
     animation: none;
-  }
-
-  /* 止めたしずくは流れの横に浮いた丸に見えるため、描かない */
-  .glass-spill-drop {
-    display: none;
   }
 }
