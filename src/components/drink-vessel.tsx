@@ -56,7 +56,7 @@ function Mug({ liquid }: { liquid: string }) {
         strokeWidth='4'
       />
       <path
-        d='M12 27 Q12 24 15 24 H47 Q50 24 50 27 V64 Q50 74 40 74 H22 Q12 74 12 64 Z'
+        d='M12 30 Q12 24 18 24 H44 Q50 24 50 30 V64 Q50 74 40 74 H22 Q12 74 12 64 Z'
         fill={VESSEL_WHITE}
         stroke={OUTLINE}
         strokeOpacity='0.55'
