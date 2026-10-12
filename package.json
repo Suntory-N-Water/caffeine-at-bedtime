@@ -11,7 +11,7 @@
     "build": "tsr generate && tsc -b && vite build",
     "lint": "biome lint .",
     "preview": "vite preview",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --minify",
     "format": "biome format --write .",
     "lint:fix": "biome lint --write .",
     "type-check": "tsr generate && tsc -b",
