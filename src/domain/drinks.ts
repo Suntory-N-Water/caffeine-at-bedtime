@@ -72,6 +72,28 @@ export const DRINKS: readonly Drink[] = [
       url: 'https://products.kirin.co.jp/softdrink/nutrition/softdrink/',
     },
   },
+  {
+    id: 'monster-energy',
+    name: 'モンスターエナジー 355mL',
+    detail: null,
+    defaultCaffeineMg: 142,
+    isEstimate: false,
+    source: {
+      label: 'モンスターエナジー',
+      url: 'https://www.monsterenergy.com/ja-jp/energy-drinks/monster-energy/%E3%83%A2%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%BC%E3%82%A8%E3%83%8A%E3%82%B8%E3%83%BC/',
+    },
+  },
+  {
+    id: 'red-bull',
+    name: 'レッドブル 250mL',
+    detail: null,
+    defaultCaffeineMg: 80,
+    isEstimate: false,
+    source: {
+      label: 'レッドブル エナジードリンク',
+      url: 'https://www.redbull.com/jp-ja/energydrink/products/red-bull-energy-drink',
+    },
+  },
 ];
 
 export function findDrink(id: DrinkId): Drink {

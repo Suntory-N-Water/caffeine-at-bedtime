@@ -32,19 +32,32 @@ function isRecord(value: unknown): value is CaffeineRecord {
   );
 }
 
-function isSettings(value: unknown): value is Settings {
+// 飲み物を追加する前に保存した設定には、追加した飲み物のカフェイン量がない。
+// 設定全体を初期値に戻すと就寝時刻と境目まで消えるため、足りない飲み物だけ初期値で補う
+function parseSettings(value: unknown): Settings {
   if (!isObject(value)) {
-    return false;
+    return DEFAULT_SETTINGS;
   }
   const { bedtimeMinutes, thresholds, caffeineMg } = value;
-  return (
-    isFiniteNumber(bedtimeMinutes) &&
-    isObject(thresholds) &&
-    isFiniteNumber(thresholds['lower']) &&
-    isFiniteNumber(thresholds['upper']) &&
-    isObject(caffeineMg) &&
-    DRINK_IDS.every((id) => isFiniteNumber(caffeineMg[id]))
-  );
+  if (
+    !isFiniteNumber(bedtimeMinutes) ||
+    !isObject(thresholds) ||
+    !isFiniteNumber(thresholds['lower']) ||
+    !isFiniteNumber(thresholds['upper']) ||
+    !isObject(caffeineMg)
+  ) {
+    return DEFAULT_SETTINGS;
+  }
+  return {
+    bedtimeMinutes,
+    thresholds: { lower: thresholds['lower'], upper: thresholds['upper'] },
+    caffeineMg: Object.fromEntries(
+      DRINK_IDS.map((id) => {
+        const mg = caffeineMg[id];
+        return [id, isFiniteNumber(mg) ? mg : DEFAULT_SETTINGS.caffeineMg[id]];
+      }),
+    ) as Record<DrinkId, number>,
+  };
 }
 
 function readJson(storage: Storage, key: string): unknown {
@@ -71,7 +84,7 @@ export function loadState(storage: Storage, now: number): StoredState {
   const records = Array.isArray(rawRecords) ? rawRecords.filter(isRecord) : [];
   return {
     records: keepRecent(records, now),
-    settings: isSettings(rawSettings) ? rawSettings : DEFAULT_SETTINGS,
+    settings: parseSettings(rawSettings),
   };
 }
 

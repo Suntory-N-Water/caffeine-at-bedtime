@@ -31,7 +31,7 @@ export function DrinkButton({ assessment, onRecord }: DrinkButtonProps) {
       <span className='text-muted-foreground text-sm leading-none tabular-nums'>
         {caffeineMg}mg{drink.isEstimate && '・推定値'}
       </span>
-      {/* 7 つのカードすべてに判定が出るため、塗ったラベルにすると容器の絵より目立つ。カードでは小さな文字に留める */}
+      {/* すべてのカードに判定が出るため、塗ったラベルにすると容器の絵より目立つ。カードでは小さな文字に留める */}
       <span className='mt-1.5 flex flex-col items-center gap-0.5'>
         <VerdictLabel verdict={verdict} className='text-sm font-medium' />
         <span className='text-muted-foreground text-xs tabular-nums'>就寝時 {residualMg}mg</span>

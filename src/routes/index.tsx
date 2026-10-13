@@ -28,6 +28,7 @@ const COFFEE_IDS: ReadonlySet<DrinkId> = new Set([
   'seven-cafe-hot',
   'seven-cafe-iced',
 ]);
+const ENERGY_DRINK_IDS: ReadonlySet<DrinkId> = new Set(['monster-energy', 'red-bull']);
 
 function marginMessage({ residualMg, verdict }: Assessment, thresholds: Thresholds): string {
   const margin = thresholds.upper - residualMg;
@@ -94,7 +95,10 @@ function MainPage() {
     : `${formatBedtime(settings.bedtimeMinutes)} に体に残る量`;
 
   const coffees = evaluation.drinks.filter((d) => COFFEE_IDS.has(d.drink.id));
-  const teas = evaluation.drinks.filter((d) => !COFFEE_IDS.has(d.drink.id));
+  const energyDrinks = evaluation.drinks.filter((d) => ENERGY_DRINK_IDS.has(d.drink.id));
+  const teas = evaluation.drinks.filter(
+    (d) => !COFFEE_IDS.has(d.drink.id) && !ENERGY_DRINK_IDS.has(d.drink.id),
+  );
 
   // 下に出るトースト（高さ約 90px）が取り消しボタンに重なると続けて取り消せないため、
   // 一番下までスクロールしたときに、この余白とフッターの高さでボタンがトーストより上に来るようにする
@@ -172,6 +176,7 @@ function MainPage() {
           </h2>
           <DrinkShelf drinks={coffees} columns='grid-cols-3' onRecord={handleRecord} />
           <DrinkShelf drinks={teas} columns='grid-cols-2' onRecord={handleRecord} />
+          <DrinkShelf drinks={energyDrinks} columns='grid-cols-2' onRecord={handleRecord} />
         </section>
 
         {evaluation.todayRecords.length > 0 && (

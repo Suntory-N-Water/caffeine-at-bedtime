@@ -89,6 +89,8 @@
   --drink-hojicha: #bf783a;
   --drink-jasmine-tea: #e6b422;
   --drink-black-tea: #ce5242;
+  --drink-monster-energy: #3eb370;
+  --drink-red-bull: #223a70;
 }
 
 /* 濃藍の背景では藍色と藍鼠が沈むため、判定の色は白磁を混ぜて明るくし、文字を濃藍にする */
@@ -125,6 +127,8 @@
   --drink-home-coffee: color-mix(in oklch, #583822 70%, var(--hakuji));
   --drink-seven-cafe-hot: color-mix(in oklch, #6f4b3e 65%, var(--hakuji));
   --drink-seven-cafe-iced: color-mix(in oklch, #8d6449 65%, var(--hakuji));
+  /* 紺色も濃藍の背景に沈むため、同じく白磁を混ぜる */
+  --drink-red-bull: color-mix(in oklch, #223a70 60%, var(--hakuji));
 }
 
 @layer base {

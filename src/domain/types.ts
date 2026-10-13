@@ -6,6 +6,8 @@ export const DRINK_IDS = [
   'hojicha',
   'jasmine-tea',
   'black-tea',
+  'monster-energy',
+  'red-bull',
 ] as const;
 
 export type DrinkId = (typeof DRINK_IDS)[number];

@@ -10,23 +10,33 @@ describe('読み込み', () => {
   it('何も保存されていないとき、初期設定と空の記録を読み込むこと', () => {
     const result = loadState(memoryStorage(), now);
 
-    expect(result).toEqual({
-      records: [],
-      settings: {
-        bedtimeMinutes: 23 * 60,
-        thresholds: { lower: 75, upper: 80 },
-        caffeineMg: {
-          'home-coffee': 135,
-          'seven-cafe-hot': 98,
-          'seven-cafe-iced': 92,
-          'green-tea': 65,
-          hojicha: 65,
-          'jasmine-tea': 50,
-          'black-tea': 50,
-        },
-      },
-    });
+    expect(result).toEqual({ records: [], settings: DEFAULT_SETTINGS });
   });
+
+  it.each([
+    ['ない', {}],
+    ['数値でない', { 'red-bull': 'abc' }],
+  ])(
+    '保存された設定に一部の飲み物のカフェイン量が%sとき、その飲み物だけ初期値で補うこと',
+    (_, redBull) => {
+      const { 'red-bull': __, ...otherDrinks } = DEFAULT_SETTINGS.caffeineMg;
+      const storage = memoryStorage({
+        [SETTINGS_KEY]: JSON.stringify({
+          bedtimeMinutes: 30,
+          thresholds: { lower: 60, upper: 70 },
+          caffeineMg: { ...otherDrinks, 'green-tea': 30, ...redBull },
+        }),
+      });
+
+      const result = loadState(storage, now);
+
+      expect(result.settings).toEqual({
+        bedtimeMinutes: 30,
+        thresholds: { lower: 60, upper: 70 },
+        caffeineMg: { ...DEFAULT_SETTINGS.caffeineMg, 'green-tea': 30 },
+      });
+    },
+  );
 
   it.each([
     ['JSON として読めない', '{'],

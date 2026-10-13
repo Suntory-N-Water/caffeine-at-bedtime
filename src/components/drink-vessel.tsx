@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { type ReactNode, useId } from 'react';
 
 import type { DrinkId } from '@/domain/types';
 import { cn } from '@/lib/utils';
@@ -28,6 +28,10 @@ function VesselShape({ drinkId }: { drinkId: DrinkId }) {
       return <PaperCup sleeve={drinkColor(drinkId)} />;
     case 'seven-cafe-iced':
       return <IcedCup liquid={drinkColor(drinkId)} />;
+    case 'monster-energy':
+      return <MonsterCan />;
+    case 'red-bull':
+      return <RedBullCan />;
     default:
       return <Bottle liquid={drinkColor(drinkId)} />;
   }
@@ -140,6 +144,72 @@ function IcedCup({ liquid }: { liquid: string }) {
       <path d={cup} fill='none' stroke={OUTLINE} strokeOpacity='0.55' strokeWidth='2.5' />
       <rect x='12' y='19' width='40' height='4' rx='2' fill={OUTLINE} fillOpacity='0.45' />
     </g>
+  );
+}
+
+// 355mL 缶と 250mL のスリム缶を見分けられるよう、缶の幅を容量に合わせて変える
+function Can({ halfWidth, children }: { halfWidth: number; children: ReactNode }) {
+  const clipId = useId();
+  const left = 32 - halfWidth;
+  const right = 32 + halfWidth;
+  const body = `M${left + 4} 12 H${right - 4} L${right} 18 V70 Q${right} 76 ${right - 6} 76 H${left + 6} Q${left} 76 ${left} 70 V18 Z`;
+  return (
+    <g strokeLinejoin='round'>
+      <clipPath id={clipId}>
+        <path d={body} />
+      </clipPath>
+      <g clipPath={`url(#${clipId})`}>{children}</g>
+      <path d={body} fill='none' stroke={OUTLINE} strokeOpacity='0.55' strokeWidth='2.5' />
+      <rect
+        x={left + 6}
+        y='8'
+        width={2 * halfWidth - 12}
+        height='4'
+        rx='2'
+        fill={OUTLINE}
+        fillOpacity='0.45'
+      />
+    </g>
+  );
+}
+
+function clawPath(x: number): string {
+  return `M${x - 2} 24 L${x + 2} 25 L${x + 0.6} 35 L${x + 2.6} 37 L${x + 0.8} 49 L${x + 2.2} 51 L${x} 64 L${x - 1.4} 52 L${x - 2.8} 50 L${x - 1.2} 38 L${x - 3} 36 Z`;
+}
+
+// 缶は店の棚で見る配色で見分けるため、ダークモードで明るくする飲み物の色の変数を使わず、色を固定する
+function MonsterCan() {
+  return (
+    <Can halfWidth={14}>
+      <rect x='0' y='0' width='64' height='80' fill='#1c1c1c' />
+      {[24, 32, 40].map((x) => (
+        <path key={x} d={clawPath(x)} fill='#3eb370' />
+      ))}
+    </Can>
+  );
+}
+
+function Bull() {
+  return (
+    <path
+      d='M20 47 L22 43 Q24 40 27.5 41 L29 38.5 L29.6 41.6 L30.4 44 L28 44.6 L27.4 47 L25.6 45.4 L23 46 Z'
+      fill='#e83929'
+    />
+  );
+}
+
+function RedBullCan() {
+  return (
+    <Can halfWidth={11}>
+      <rect x='0' y='0' width='64' height='80' fill='#c9caca' />
+      <rect x='0' y='0' width='32' height='44' fill='#223a70' />
+      <rect x='32' y='44' width='32' height='40' fill='#223a70' />
+      <circle cx='32' cy='42' r='5' fill='#f8b500' />
+      <Bull />
+      <g transform='translate(64 0) scale(-1 1)'>
+        <Bull />
+      </g>
+    </Can>
   );
 }
 
