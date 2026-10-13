@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { BookOpen, ChevronLeft, Hourglass, UserRound } from 'lucide-react';
-import { type FormEvent, type ReactNode, useState } from 'react';
+import { type FormEvent, type ReactNode, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { useAppState } from '@/app-state';
@@ -278,6 +278,7 @@ type NumberInputProps = {
 };
 
 function NumberInput({ id, value, onChange, invalid, describedBy: described }: NumberInputProps) {
+  const focusedByThisTap = useRef<boolean>(false);
   return (
     <Input
       id={id}
@@ -287,6 +288,20 @@ function NumberInput({ id, value, onChange, invalid, describedBy: described }: N
       autoComplete='off'
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      // 右寄せの欄では、数字の左の空きをタップすると数字の先頭にカーソルが入り、削除キーで消せない。
+      // iOS の Safari は focus の後にタップした位置へカーソルを置き直すため、click の時点で末尾へ動かす。
+      // 入力中の欄をタップしてカーソルを動かす操作は妨げないよう、そのタップでフォーカスした場合に限る
+      onPointerDown={(e) => {
+        focusedByThisTap.current = document.activeElement !== e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (!focusedByThisTap.current) {
+          return;
+        }
+        focusedByThisTap.current = false;
+        const end = e.currentTarget.value.length;
+        e.currentTarget.setSelectionRange(end, end);
+      }}
       aria-invalid={invalid}
       aria-describedby={described}
       className='h-11 w-20 shrink-0 text-right text-lg font-bold tabular-nums'
